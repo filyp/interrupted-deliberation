@@ -47,12 +47,13 @@ Reasoning:
 """
 original_batch = tokenizer(full_prompt, return_tensors="pt")
 
-pt.manual_seed(42)
+pt.manual_seed(44)
 # generate original CoT
 original_out = model.generate(**original_batch, max_new_tokens=1000, temperature=1.0)
 
-# print(tokenizer.decode(original_out[0]))
-# print(question["target"])
+print(tokenizer.decode(original_out[0]))
+print("correct answer: ", question["target"])
+
 
 # %%
 def get_accuracy(out, question):
@@ -67,17 +68,37 @@ def get_accuracy(out, question):
     _targets = ["(A)", "(B)", "(C)", "(D)", "(E)", "(F)", "(G)"]
     target_idx = _targets.index(question["target"])
 
-    return answer_probs[target_idx]
+    return answer_probs[target_idx].item()
 
-
-interrupt_prompt = "\n\nANSWER:"
-
-out_text_trimmed = tokenizer.decode(original_out[0, :-180])
-print(out_text_trimmed + interrupt_prompt)
-batch = tokenizer(out_text_trimmed + interrupt_prompt, return_tensors="pt")
-
-pt.cuda.empty_cache()
-out = model(**batch)
-get_accuracy(out, question)
 
 # %%
+
+# interrupt_prompt = "\n\nANSWER:"
+# interrupt_prompt = "\n\nLet's try to guess the answer.\n\nANSWER:"
+interrupt_prompt = " <output_trimmed>\n\nANSWER:"
+
+original_input_len = original_batch["input_ids"].shape[-1]
+cot_length = original_out.shape[-1] - original_input_len
+
+acc_list = []
+for i in range(0, cot_length, 1):
+    pt.cuda.empty_cache()
+
+    out_text_trimmed = tokenizer.decode(original_out[0, : original_input_len + i])
+    batch = tokenizer(out_text_trimmed + interrupt_prompt, return_tensors="pt")
+
+    current_token = tokenizer.decode(
+        original_out[0, original_input_len + i - 1 : original_input_len + i]
+    )
+
+    with pt.no_grad():
+        out = model(**batch)
+    acc = get_accuracy(out, question)
+    print(f"i: {i}, accuracy: {acc:.2f}, current_token: {current_token}")
+    acc_list.append(acc)
+
+# %%
+plt.plot(acc_list)
+
+# %%
+print(out_text_trimmed + interrupt_prompt)
