@@ -1,0 +1,13 @@
+bitsandbytes
+datasets
+ipykernel
+ipywidgets
+matplotlib
+scipy
+torch
+transformers
+wandb
+plotly
+modal
+PyYAML
+hydra-core
