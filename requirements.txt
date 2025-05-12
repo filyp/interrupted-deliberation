@@ -11,3 +11,4 @@ plotly
 modal
 PyYAML
 hydra-core
+accelerate
