@@ -32,9 +32,9 @@ subset = "logical_deduction_three_objects"
 dataset = load_dataset(dataset_name, subset, split="train")
 
 # %%
-# ok questions: 12, 13, 19
+# ok questions: 12, 13, 19, 21
 
-question_id = 21
+question_id = 23
 question = dataset[question_id]
 
 full_prompt = f"""\
@@ -46,7 +46,6 @@ At the end output exactly one of the following:
 ANSWER: A
 ANSWER: B
 ANSWER: C
-ANSWER: D
 """
 templated_prompt = tokenizer.apply_chat_template([{"role": "user", "content": full_prompt}], tokenize=False, add_generation_prompt=True)
 original_batch = tokenizer(templated_prompt, return_tensors="pt")
@@ -60,15 +59,20 @@ print(tokenizer.decode(original_out[0]))
 print("correct answer: ", question["target"])
 
 # %%
-acc_list, word_list = get_acc_list_templated(
+acc_list, word_list, other_prob1_list, other_prob2_list = get_acc_list_templated(
     model, tokenizer, question, original_batch, original_out,
+    return_all_probs=True,
 )
 
-plt.plot(acc_list)
+plt.plot(acc_list, label="acc")
+plt.plot(other_prob1_list, label="other_prob1")
+plt.plot(other_prob2_list, label="other_prob2")
 plt.title(f"{subset} Q{question_id}")
+plt.legend()
 
 # Create and display the HTML
 from IPython.display import HTML, display
+
 highlighted_text = create_html_highlighted_text(word_list, acc_list)
 display(HTML(highlighted_text))
 

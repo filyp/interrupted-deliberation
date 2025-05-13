@@ -20,7 +20,7 @@ def get_probabilities(out, tokenizer):
     return answer_probs
 
 
-def get_accuracy(out, question, tokenizer, required_acc=0.8):
+def get_accuracy(out, question, tokenizer, required_acc=0.8, return_all_probs=False):
     answer_probs = get_probabilities(out, tokenizer)
     # if it's smaller, we're prompting incorrectly
     assert answer_probs.sum() > required_acc
@@ -29,8 +29,16 @@ def get_accuracy(out, question, tokenizer, required_acc=0.8):
 
     _targets = ["(A)", "(B)", "(C)", "(D)", "(E)", "(F)", "(G)"]
     target_idx = _targets.index(question["target"])
+    
+    correct_prob = answer_probs[target_idx].item()
+    other_probs = [el.item() for i, el in enumerate(answer_probs) if i != target_idx]
+    other_prob1 = other_probs[0]
+    other_prob2 = other_probs[1]
 
-    return answer_probs[target_idx].item()
+    if return_all_probs:
+        return correct_prob, other_prob1, other_prob2
+    else:
+        return correct_prob
 
 
 def get_entropy(out, question, tokenizer, _):
@@ -79,12 +87,15 @@ def get_acc_list_templated(
     template_function=interrupt_prompt_generator,
     required_acc=0.8,
     metric=get_accuracy,
+    return_all_probs=False,
 ):
     orig_input_len = original_batch["input_ids"].shape[-1]
     cot_length = original_out.shape[-1] - orig_input_len
 
     acc_list = []
     word_list = []
+    other_prob1_list = []
+    other_prob2_list = []
     for i in range(0, cot_length, 1):
         pt.cuda.empty_cache()
 
@@ -97,12 +108,19 @@ def get_acc_list_templated(
 
         with pt.no_grad():
             out = model(**batch)
-        acc = metric(out, question, tokenizer, required_acc)
+        acc = metric(out, question, tokenizer, required_acc, return_all_probs)
+        if return_all_probs:
+            acc, other_prob1, other_prob2 = acc
+            other_prob1_list.append(other_prob1)
+            other_prob2_list.append(other_prob2)
         print(f"i: {i}, accuracy: {acc:.2f}, current_token: {current_token}")
         acc_list.append(acc)
         word_list.append(current_token)
 
-    return acc_list, word_list
+    if return_all_probs:
+        return acc_list, word_list, other_prob1_list, other_prob2_list
+    else:
+        return acc_list, word_list
 
 
 def get_acc_list(
