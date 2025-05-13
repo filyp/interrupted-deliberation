@@ -11,12 +11,17 @@ from transformers import AutoModelForCausalLM, AutoTokenizer
 answer_tokens = [" A", " B", " C", " D"]
 
 
-def get_accuracy(out, question, tokenizer, required_acc=0.8):
+def get_probabilities(out, tokenizer):
     last_token_logits = out.logits[0, -1].to(pt.float32)
     probs = pt.softmax(last_token_logits, dim=-1)
 
     answer_ids = pt.tensor([tokenizer.encode(t)[1:] for t in answer_tokens]).reshape(4)
     answer_probs = probs[answer_ids]
+    return answer_probs
+
+
+def get_accuracy(out, question, tokenizer, required_acc=0.8):
+    answer_probs = get_probabilities(out, tokenizer)
     # if it's smaller, we're prompting incorrectly
     assert answer_probs.sum() > required_acc
 
@@ -26,6 +31,12 @@ def get_accuracy(out, question, tokenizer, required_acc=0.8):
     target_idx = _targets.index(question["target"])
 
     return answer_probs[target_idx].item()
+
+
+def get_entropy(out, question, tokenizer, _):
+    answer_probs = get_probabilities(out, tokenizer)
+    entropy = -pt.sum(answer_probs * pt.log(answer_probs))
+    return entropy.item()
 
 
 def create_html_highlighted_text(words, accuracies):
@@ -40,14 +51,29 @@ def create_html_highlighted_text(words, accuracies):
     return "".join(html_parts)
 
 
-def get_acc_list(
+def interrupt_prompt_generator(trimmed, question, tokenizer):
+    cot = trimmed.split("assistant<|end_header_id|>\n\n")[-1]
+    prompt = f"""<question>{question}</question>
+<partial_cot>{cot}</partial_cot>
+<instructions>Answer the question based on the partial CoT and the question. Answer exactly one of the following:
+ANSWER: A
+ANSWER: B
+ANSWER: C
+ANSWER: D
+</instructions>"""
+    return tokenizer.apply_chat_template([{"role": "user", "content": prompt}, {"role": "assistant", "content": "ANSWER:"}],
+                                         tokenize=False, add_generation_prompt=False, continue_final_message=True)
+
+
+def get_acc_list_templated(
     model,
     tokenizer,
     question,
     original_batch,
     original_out,
-    interrupt_prompt,
+    template_function=interrupt_prompt_generator,
     required_acc=0.8,
+    metric=get_accuracy,
 ):
     orig_input_len = original_batch["input_ids"].shape[-1]
     cot_length = original_out.shape[-1] - orig_input_len
@@ -58,7 +84,7 @@ def get_acc_list(
         pt.cuda.empty_cache()
 
         out_text_trimmed = tokenizer.decode(original_out[0, : orig_input_len + i])
-        batch = tokenizer(out_text_trimmed + interrupt_prompt, return_tensors="pt")
+        batch = tokenizer(template_function(out_text_trimmed, question, tokenizer), return_tensors="pt")
 
         current_token = tokenizer.decode(
             original_out[0, orig_input_len + i - 1 : orig_input_len + i]
@@ -66,12 +92,29 @@ def get_acc_list(
 
         with pt.no_grad():
             out = model(**batch)
-        acc = get_accuracy(out, question, tokenizer, required_acc)
+        acc = metric(out, question, tokenizer, required_acc)
         print(f"i: {i}, accuracy: {acc:.2f}, current_token: {current_token}")
         acc_list.append(acc)
         word_list.append(current_token)
 
     return acc_list, word_list
+
+
+def get_acc_list(
+    model,
+    tokenizer,
+    question,
+    original_batch,
+    original_out,
+    interrupt_prompt,
+    required_acc=0.8,
+):
+    def interrupt_prompt_generator(out_text_trimmed, question, tokenizer):
+        return out_text_trimmed + interrupt_prompt
+
+    return get_acc_list_templated(
+        model, tokenizer, question, original_batch, original_out, interrupt_prompt_generator, required_acc
+    )
 
 
 # %%
