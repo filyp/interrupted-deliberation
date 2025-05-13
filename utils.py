@@ -11,13 +11,14 @@ from transformers import AutoModelForCausalLM, AutoTokenizer
 answer_tokens = [" A", " B", " C", " D"]
 
 
-def get_accuracy(out, question, tokenizer):
+def get_accuracy(out, question, tokenizer, required_acc=0.8):
     last_token_logits = out.logits[0, -1].to(pt.float32)
     probs = pt.softmax(last_token_logits, dim=-1)
 
     answer_ids = pt.tensor([tokenizer.encode(t)[1:] for t in answer_tokens]).reshape(4)
     answer_probs = probs[answer_ids]
-    assert answer_probs.sum() > 0.8  # if it's smaller, we're prompting incorrectly
+    # if it's smaller, we're prompting incorrectly
+    assert answer_probs.sum() > required_acc
 
     answer_probs /= answer_probs.sum()  # normalize
 
@@ -40,7 +41,13 @@ def create_html_highlighted_text(words, accuracies):
 
 
 def get_acc_list(
-    model, tokenizer, question, original_batch, original_out, interrupt_prompt
+    model,
+    tokenizer,
+    question,
+    original_batch,
+    original_out,
+    interrupt_prompt,
+    required_acc=0.8,
 ):
     orig_input_len = original_batch["input_ids"].shape[-1]
     cot_length = original_out.shape[-1] - orig_input_len
@@ -59,7 +66,7 @@ def get_acc_list(
 
         with pt.no_grad():
             out = model(**batch)
-        acc = get_accuracy(out, question, tokenizer)
+        acc = get_accuracy(out, question, tokenizer, required_acc)
         print(f"i: {i}, accuracy: {acc:.2f}, current_token: {current_token}")
         acc_list.append(acc)
         word_list.append(current_token)
