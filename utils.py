@@ -51,18 +51,23 @@ def create_html_highlighted_text(words, accuracies):
     return "".join(html_parts)
 
 
-def interrupt_prompt_generator(trimmed, question, tokenizer):
-    cot = trimmed.split("assistant<|end_header_id|>\n\n")[-1]
-    prompt = f"""<question>{question}</question>
-<partial_cot>{cot}</partial_cot>
-<instructions>Answer the question based on the partial CoT and the question. Answer exactly one of the following:
-ANSWER: A
-ANSWER: B
-ANSWER: C
-ANSWER: D
-</instructions>"""
-    return tokenizer.apply_chat_template([{"role": "user", "content": prompt}, {"role": "assistant", "content": "ANSWER:"}],
-                                         tokenize=False, add_generation_prompt=False, continue_final_message=True)
+def general_interrupt_prompt_generator(instructions):
+    def inner(trimmed, question, tokenizer):
+        cot = trimmed.split("assistant<|end_header_id|>\n\n")[-1]
+        prompt = f"""<question>{question}</question>
+    <partial_cot>{cot}</partial_cot>
+    <instructions>{instructions} Answer exactly one of the following:
+    ANSWER: A
+    ANSWER: B
+    ANSWER: C
+    ANSWER: D
+    </instructions>"""
+        return tokenizer.apply_chat_template([{"role": "user", "content": prompt}, {"role": "assistant", "content": "ANSWER:"}],
+                                            tokenize=False, add_generation_prompt=False, continue_final_message=True)
+    return inner
+
+
+interrupt_prompt_generator = general_interrupt_prompt_generator("Answer the question based on the partial CoT and the question.")
 
 
 def get_acc_list_templated(
