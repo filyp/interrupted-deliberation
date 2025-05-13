@@ -131,12 +131,21 @@ def get_acc_list(
     original_out,
     interrupt_prompt,
     required_acc=0.8,
+    return_all_probs=False,
 ):
     def interrupt_prompt_generator(out_text_trimmed, question, tokenizer):
         return out_text_trimmed + interrupt_prompt
 
     return get_acc_list_templated(
-        model, tokenizer, question, original_batch, original_out, interrupt_prompt_generator, required_acc
+        model, 
+        tokenizer, 
+        question, 
+        original_batch, 
+        original_out, 
+        interrupt_prompt_generator, 
+        required_acc=required_acc,
+        metric=get_accuracy,
+        return_all_probs=return_all_probs
     )
 
 
