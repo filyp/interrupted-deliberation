@@ -10,7 +10,7 @@ import torch as pt
 from datasets import load_dataset
 from transformers import AutoModelForCausalLM, AutoTokenizer
 
-device = "cuda"  # change it if you want
+device = "cpu"  # change it if you want
 # device = "cpu"  # change it if you want
 pt.set_default_device(device)
 
@@ -24,7 +24,8 @@ tokenizer = AutoTokenizer.from_pretrained(model_id)
 tokenizer.pad_token = tokenizer.eos_token
 
 answer_tokens = [" A", " B", " C", " D"]
-answer_ids = pt.tensor([tokenizer.encode(t)[1:] for t in answer_tokens]).reshape(4)
+answer_ids = pt.tensor([tokenizer.encode(t)[1:]
+                       for t in answer_tokens]).reshape(4)
 
 # %%
 dataset_name = "maveriq/bigbenchhard"
@@ -35,21 +36,22 @@ dataset = load_dataset(dataset_name, subset, split="train")
 question = dataset[1]
 
 # %%
-full_prompt = f"""\
-{question["input"]}
-
-Reason about the question step by step.
+templeted_chat = [{
+    "role": "system", "content": """
+Reason about the question step by step. Try to be as brief as possible. If you encounter the <output_trimmed> marker, answer immediately.
 
 At the end output:
 ANSWER: X
-
-Reasoning:
-"""
+"""},
+    {"role": "user", "content": question["input"]}]
+full_prompt = tokenizer.apply_chat_template(
+    templeted_chat, tokenize=False, add_generation_prompt=True)
 original_batch = tokenizer(full_prompt, return_tensors="pt")
 
-pt.manual_seed(44)
+pt.manual_seed(46)
 # generate original CoT
-original_out = model.generate(**original_batch, max_new_tokens=1000, temperature=1.0)
+original_out = model.generate(
+    **original_batch, max_new_tokens=1000, temperature=1.0)
 
 print(tokenizer.decode(original_out[0]))
 print("correct answer: ", question["target"])
@@ -84,11 +86,12 @@ acc_list = []
 for i in range(0, cot_length, 1):
     pt.cuda.empty_cache()
 
-    out_text_trimmed = tokenizer.decode(original_out[0, : original_input_len + i])
+    out_text_trimmed = tokenizer.decode(
+        original_out[0, : original_input_len + i])
     batch = tokenizer(out_text_trimmed + interrupt_prompt, return_tensors="pt")
 
     current_token = tokenizer.decode(
-        original_out[0, original_input_len + i - 1 : original_input_len + i]
+        original_out[0, original_input_len + i - 1: original_input_len + i]
     )
 
     with pt.no_grad():
