@@ -12,3 +12,4 @@ modal
 PyYAML
 hydra-core
 accelerate
+# llama-cpp-python
