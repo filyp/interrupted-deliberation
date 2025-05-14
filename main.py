@@ -1,10 +1,6 @@
 # %%
-%load_ext autoreload
-%autoreload 2
-import logging
-import os
-from copy import deepcopy
-
+# %load_ext autoreload
+# %autoreload 2
 import matplotlib.pyplot as plt
 import numpy as np
 import torch as pt
@@ -44,7 +40,7 @@ dataset = load_dataset(dataset_name, subset, split="train")
 # Initialize body content list
 html_body_parts = []
 
-for question_id in [2]:#, 7, 9, 10, 13, 15, 21, 26, 28, 29]:
+for question_id in [2, 7, 9, 10, 13, 15, 21, 26, 28, 29]:
     question = dataset[question_id]
 
     full_prompt = f"""\
@@ -79,7 +75,7 @@ for question_id in [2]:#, 7, 9, 10, 13, 15, 21, 26, 28, 29]:
         question,
         original_batch,
         original_out,
-        required_acc=0.4,
+        required_acc=0.01,
         # stride=1,
         verbose=False,
     )
@@ -89,7 +85,7 @@ for question_id in [2]:#, 7, 9, 10, 13, 15, 21, 26, 28, 29]:
         question,
         original_batch,
         original_out,
-        required_acc=0.4,
+        required_acc=0.01,
         interrupt_prompt="\n\n<trimmed_due_to_length>\n\nANSWER:",
         # stride=1,
         verbose=False,
@@ -100,37 +96,44 @@ for question_id in [2]:#, 7, 9, 10, 13, 15, 21, 26, 28, 29]:
         question,
         original_batch,
         original_out,
-        required_acc=0.4,
+        required_acc=0.01,
         # stride=1,
         verbose=False,
     )
 
     # Save the plots
 
-    plt.plot(acc_list, label="smooth")
-    plt.plot(acc_list_abrupt, label="abrupt")
+    plt.plot(acc_list, label="smooth", color="blue")
+    plt.plot(acc_list_abrupt, label="abrupt", color="orange")
     plt.ylim(0, 1)
     plt.legend()
     plt.title(f"{subset} Q{question_id}", pad=10)
     plt.xlabel("CoT token position")
     plt.ylabel("Accuracy")
-    image_path = f"images_smooth_vs_abrupt/30_questions_from_{subset}_Q{question_id}.svg"
-    plt.savefig("docs/" + image_path, format="svg")
-
-    plt.plot(acc_list, label="Llama-3.2-3B-Instruct")
-    plt.plot(acc_list_small, label="Llama-3.2-1B-Instruct")
-    plt.ylim(0, 1)
-    plt.legend()
-    plt.title(f"{subset} Q{question_id}", pad=10)
-    plt.xlabel("CoT token position")
-    plt.ylabel("Accuracy")
-    image_path = f"images_smooth_vs_abrupt/30_questions_from_{subset}_Q{question_id}.svg"
+    image_path = (
+        f"images_smooth_vs_abrupt/30_questions_from_{subset}_Q{question_id}.svg"
+    )
     plt.savefig("docs/" + image_path, format="svg")
     plt.show()
+    plt.close()
 
-    plt.plot(acc_list, label="smooth-3B")
-    plt.plot(acc_list_abrupt, label="abrupt-3B")
-    plt.plot(acc_list_small, label="smooth-1B")
+    plt.plot(acc_list, label="Llama-3.2-3B-Instruct", color="blue")
+    plt.plot(acc_list_small, label="Llama-3.2-1B-Instruct", color="green")
+    plt.ylim(0, 1)
+    plt.legend()
+    plt.title(f"{subset} Q{question_id}", pad=10)
+    plt.xlabel("CoT token position")
+    plt.ylabel("Accuracy")
+    image_path = (
+        f"images_smooth_vs_abrupt/30_questions_from_{subset}_Q{question_id}.svg"
+    )
+    plt.savefig("docs/" + image_path, format="svg")
+    plt.show()
+    plt.close()
+
+    plt.plot(acc_list, label="smooth-3B", color="blue")
+    plt.plot(acc_list_abrupt, label="abrupt-3B", color="orange")
+    plt.plot(acc_list_small, label="smooth-1B", color="green")
     plt.ylim(0, 1)
     plt.legend()
     plt.title(f"{subset} Q{question_id}", pad=10)
@@ -139,12 +142,14 @@ for question_id in [2]:#, 7, 9, 10, 13, 15, 21, 26, 28, 29]:
     image_path = f"images/30_questions_from_{subset}_Q{question_id}.svg"
     plt.savefig("docs/" + image_path, format="svg")
     plt.show()
+    plt.close()
 
     # Create HTML content with styling
     highlighted_text = create_html_highlighted_text(word_list, acc_list)
-    
+
     # Add question content to body parts
-    html_body_parts.append(f"""
+    html_body_parts.append(
+        f"""
     <div class="question">
         <h3>Question {question_id}</h3>
         <pre>{question['input']}</pre>
@@ -154,7 +159,8 @@ for question_id in [2]:#, 7, 9, 10, 13, 15, 21, 26, 28, 29]:
             {highlighted_text}
         </div>
     </div>
-    """)
+    """
+    )
 
 # Initialize HTML content with header
 html_header = """
@@ -191,8 +197,7 @@ html_header = """
     </style>
 </head>
 <body>
-    <h1>Analysis Results</h1>
-    <h2>Logical Deduction Three Objects</h2>
+    <h1>Logical Deduction Three Objects Dataset</h1>
 """
 # Combine header and body
 html_content = html_header + "\n".join(html_body_parts) + "\n</body>\n</html>"

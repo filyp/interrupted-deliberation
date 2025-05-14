@@ -24,7 +24,9 @@ def get_probabilities(out, tokenizer):
 def get_accuracy(out, question, tokenizer, required_acc=0.8, return_all_probs=False):
     answer_probs = get_probabilities(out, tokenizer)
     # if it's smaller, we're prompting incorrectly
-    assert answer_probs.sum() > required_acc
+    assert answer_probs.sum() > required_acc, f"probs sum: {answer_probs.sum()}"
+    if answer_probs.sum() < 0.5:
+        print(f"warning: probs sum: {answer_probs.sum()}")
 
     answer_probs /= answer_probs.sum()  # normalize
 
