@@ -5,10 +5,11 @@ import logging
 import os
 from copy import deepcopy
 
-from IPython.display import HTML, display
 import matplotlib.pyplot as plt
+import numpy as np
 import torch as pt
 from datasets import load_dataset
+from IPython.display import HTML, display
 from transformers import AutoModelForCausalLM, AutoTokenizer
 
 from utils import *
@@ -60,7 +61,9 @@ for question_id in range(0, 30):
     pt.manual_seed(46)
     # generate original CoT
     # using temperature 0
-    original_out = model.generate(**original_batch, max_new_tokens=300, temperature=0.01)
+    original_out = model.generate(
+        **original_batch, max_new_tokens=300, temperature=0.01
+    )
     all_original_out.append(original_out)
 
     # print(tokenizer.decode(original_out[0]))
@@ -89,30 +92,29 @@ for question_id in range(0, 30):
     # highlighted_text = create_html_highlighted_text(word_list, acc_list)
     # display(HTML(highlighted_text))
 
-# # %%
-# plt.figure(figsize=(5, 4))
-# for acc_list in filt:
-#     plt.plot(acc_list, label="acc")
-# plt.ylim(0, 1)
-# # plt.legend()
-# # Set both positions and labels for x-ticks
-# plt.xticks([0, len(acc_list)//2, len(acc_list)-1], ["start", "middle", "end"])
-# plt.title(f"30 questions from {subset}", pad=10)
-# plt.tight_layout()
-# plt.show()
-
-# # save as svg
-# plt.savefig(f"report/pictures/30_questions_from_{subset}.svg", format="svg")
+# %%
+plt.figure(figsize=(5, 4))
+for acc_list in all_acc_lists:
+    plt.plot(acc_list, label="acc")
+plt.ylim(0, 1)
+# plt.legend()
+# Set both positions and labels for x-ticks
+plt.xticks([0, len(acc_list) // 2, len(acc_list) - 1], ["start", "middle", "end"])
+plt.title(f"30 questions from {subset}", pad=10)
+plt.tight_layout()
+# save as svg
+plt.savefig(f"report/pictures/30_questions_from_{subset}.svg", format="svg")
+plt.show()
 
 # # %%
 # filt = a[a[:, 0] < 0.5]
-# # %%
-# import numpy as np
 
-# a = np.array(all_acc_lists)
-# a
 # # %%
 # a[:, 0] < 0.5
 
-# # %%
-# filt.mean(axis=0)
+# %%
+np.array(all_acc_lists).mean(axis=0)
+# %%
+
+mask = (a[:, 0] < 0.4) & (a[:, -1] > 0.9)
+np.where(mask)
