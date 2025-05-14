@@ -39,7 +39,7 @@ dataset = load_dataset(dataset_name, subset, split="train")
 # Initialize body content list
 html_body_parts = []
 
-for question_id in [2, 7]: #, 9, 10, 13, 15, 21, 26, 28, 29]:
+for question_id in [2]:#, 7, 9, 10, 13, 15, 21, 26, 28, 29]:
     question = dataset[question_id]
 
     full_prompt = f"""\
@@ -60,8 +60,7 @@ for question_id in [2, 7]: #, 9, 10, 13, 15, 21, 26, 28, 29]:
     original_batch = tokenizer(templated_prompt, return_tensors="pt")
 
     pt.manual_seed(46)
-    # generate original CoT
-    # using temperature 0
+    # generate original CoT using temperature 0
     original_out = model.generate(
         **original_batch, max_new_tokens=300, temperature=0.01
     )
@@ -76,15 +75,28 @@ for question_id in [2, 7]: #, 9, 10, 13, 15, 21, 26, 28, 29]:
         original_batch,
         original_out,
         # interrupt_prompt="\n\n<trimmed_due_to_length>\n\nANSWER:",
-        # required_acc=0.6,
-        stride=1,
+        # stride=1,
+        verbose=False,
+    )
+    acc_list_abrupt, _ = get_acc_list(
+        model,
+        tokenizer,
+        question,
+        original_batch,
+        original_out,
+        interrupt_prompt="\n\n<trimmed_due_to_length>\n\nANSWER:",
+        # stride=1,
         verbose=False,
     )
 
     # Save the plot
-    plt.plot(acc_list, label="acc")
+    plt.plot(acc_list, label="smooth")
+    plt.plot(acc_list_abrupt, label="abrupt")
     plt.ylim(0, 1)
+    plt.legend()
     plt.title(f"{subset} Q{question_id}")
+    plt.xlabel("CoT token position")
+    plt.ylabel("Accuracy")
     image_path = f"images/30_questions_from_{subset}_Q{question_id}.svg"
     plt.savefig("docs/" + image_path, format="svg")
     plt.show()
@@ -151,3 +163,5 @@ html_content = html_header + "\n".join(html_body_parts) + "\n</body>\n</html>"
 # Save HTML file
 with open("docs/analysis.html", "w") as f:
     f.write(html_content)
+
+# %%

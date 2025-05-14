@@ -60,7 +60,9 @@ def create_html_highlighted_text(words, accuracies):
         green_value = 190
         alpha = acc  # alpha will be 0 when acc is 0, 1 when acc is 1
         color = f"rgba(0, {green_value}, 0, {alpha})"
-        html_parts.append(f'<span style="background-color: {color}">{word}</span>')
+        # Replace newline with HTML line break
+        display_word = word.replace("\n", "<br>")
+        html_parts.append(f'<span style="background-color: {color}">{display_word}</span>')
 
     return "".join(html_parts)
 
@@ -156,6 +158,7 @@ def get_acc_list(
     interrupt_prompt,
     required_acc=0.8,
     return_all_probs=False,
+    verbose=True,
 ):
     def interrupt_prompt_generator(out_text_trimmed, question, tokenizer):
         return out_text_trimmed + interrupt_prompt
@@ -170,6 +173,7 @@ def get_acc_list(
         required_acc=required_acc,
         metric=get_accuracy,
         return_all_probs=return_all_probs,
+        verbose=verbose,
     )
 
 
