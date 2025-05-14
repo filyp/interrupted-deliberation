@@ -19,14 +19,20 @@ device = "cuda"  # change it if you want
 pt.set_default_device(device)
 
 model_id = "meta-llama/Llama-3.2-3B-Instruct"
-# model_id = "meta-llama/Llama-3.2-1B-Instruct"
 model = AutoModelForCausalLM.from_pretrained(
     model_id, torch_dtype=pt.bfloat16, device_map=device
 )
 
-# For tokenization, you can use the transformers library with the base model
+model_small_id = "meta-llama/Llama-3.2-1B-Instruct"
+model_small = AutoModelForCausalLM.from_pretrained(
+    model_small_id, torch_dtype=pt.bfloat16, device_map=device
+)
+
 tokenizer = AutoTokenizer.from_pretrained(model_id)
 tokenizer.pad_token = tokenizer.eos_token
+_tokenizer_small = AutoTokenizer.from_pretrained(model_small_id)
+_lorem = "Lorem ipsum dolor sit amet, consectetur adipiscing elit."
+assert _tokenizer_small.encode(_lorem) == tokenizer.encode(_lorem)
 
 dataset_name = "maveriq/bigbenchhard"
 subset = "logical_deduction_three_objects"
@@ -34,7 +40,6 @@ subset = "logical_deduction_three_objects"
 dataset = load_dataset(dataset_name, subset, split="train")
 
 # %%
-
 
 # Initialize body content list
 html_body_parts = []
@@ -74,7 +79,7 @@ for question_id in [2]:#, 7, 9, 10, 13, 15, 21, 26, 28, 29]:
         question,
         original_batch,
         original_out,
-        # interrupt_prompt="\n\n<trimmed_due_to_length>\n\nANSWER:",
+        required_acc=0.4,
         # stride=1,
         verbose=False,
     )
@@ -84,24 +89,56 @@ for question_id in [2]:#, 7, 9, 10, 13, 15, 21, 26, 28, 29]:
         question,
         original_batch,
         original_out,
+        required_acc=0.4,
         interrupt_prompt="\n\n<trimmed_due_to_length>\n\nANSWER:",
         # stride=1,
         verbose=False,
     )
+    acc_list_small, _ = get_acc_list_templated(
+        model_small,
+        tokenizer,
+        question,
+        original_batch,
+        original_out,
+        required_acc=0.4,
+        # stride=1,
+        verbose=False,
+    )
 
-    # Save the plot
+    # Save the plots
+
     plt.plot(acc_list, label="smooth")
     plt.plot(acc_list_abrupt, label="abrupt")
     plt.ylim(0, 1)
     plt.legend()
-    plt.title(f"{subset} Q{question_id}")
+    plt.title(f"{subset} Q{question_id}", pad=10)
+    plt.xlabel("CoT token position")
+    plt.ylabel("Accuracy")
+    image_path = f"images_smooth_vs_abrupt/30_questions_from_{subset}_Q{question_id}.svg"
+    plt.savefig("docs/" + image_path, format="svg")
+
+    plt.plot(acc_list, label="Llama-3.2-3B-Instruct")
+    plt.plot(acc_list_small, label="Llama-3.2-1B-Instruct")
+    plt.ylim(0, 1)
+    plt.legend()
+    plt.title(f"{subset} Q{question_id}", pad=10)
+    plt.xlabel("CoT token position")
+    plt.ylabel("Accuracy")
+    image_path = f"images_smooth_vs_abrupt/30_questions_from_{subset}_Q{question_id}.svg"
+    plt.savefig("docs/" + image_path, format="svg")
+    plt.show()
+
+    plt.plot(acc_list, label="smooth-3B")
+    plt.plot(acc_list_abrupt, label="abrupt-3B")
+    plt.plot(acc_list_small, label="smooth-1B")
+    plt.ylim(0, 1)
+    plt.legend()
+    plt.title(f"{subset} Q{question_id}", pad=10)
     plt.xlabel("CoT token position")
     plt.ylabel("Accuracy")
     image_path = f"images/30_questions_from_{subset}_Q{question_id}.svg"
     plt.savefig("docs/" + image_path, format="svg")
     plt.show()
-    # plt.close()  # Close the plot to free memory
-
 
     # Create HTML content with styling
     highlighted_text = create_html_highlighted_text(word_list, acc_list)

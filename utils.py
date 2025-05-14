@@ -61,8 +61,8 @@ def create_html_highlighted_text(words, accuracies):
         alpha = acc  # alpha will be 0 when acc is 0, 1 when acc is 1
         color = f"rgba(0, {green_value}, 0, {alpha})"
         # Replace newline with HTML line break
-        display_word = word.replace("\n", "<br>")
-        html_parts.append(f'<span style="background-color: {color}">{display_word}</span>')
+        # word = word.replace("\n", "<br>")
+        html_parts.append(f'<span style="background-color: {color}">{word}</span>')
 
     return "".join(html_parts)
 
