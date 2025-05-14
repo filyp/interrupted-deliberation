@@ -8,8 +8,7 @@ import torch as pt
 from datasets import load_dataset
 from transformers import AutoModelForCausalLM, AutoTokenizer
 
-# answer_tokens = [" A", " B", " C"]
-answer_tokens = [" A", " B", " C", " D", " E"]
+answer_tokens = [" A", " B", " C"]
 
 
 def get_probabilities(out, tokenizer):
@@ -70,8 +69,6 @@ def general_interrupt_prompt_generator(instructions):
     ANSWER: A
     ANSWER: B
     ANSWER: C
-    ANSWER: D
-    ANSWER: E
     </instructions>"""
         return tokenizer.apply_chat_template(
             [
@@ -111,7 +108,8 @@ def get_acc_list_templated(
     word_list = []
     other_prob1_list = []
     other_prob2_list = []
-    for i in range(0, cot_length, stride):
+    # for i in range(0, cot_length, stride):
+    for i in [0, cot_length // 2, cot_length - 1]:
         pt.cuda.empty_cache()
 
         out_text_trimmed = tokenizer.decode(original_out[0, : orig_input_len + i])

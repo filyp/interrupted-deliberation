@@ -28,14 +28,14 @@ tokenizer = AutoTokenizer.from_pretrained(model_id)
 tokenizer.pad_token = tokenizer.eos_token
 
 dataset_name = "maveriq/bigbenchhard"
-# subset = "web_of_lies"
-# subset = "logical_deduction_three_objects"
-subset = "logical_deduction_five_objects"
+subset = "logical_deduction_three_objects"
+# subset = "tracking_shuffled_objects_three_objects"
 dataset = load_dataset(dataset_name, subset, split="train")
 
 # %%
 # ok questions: 12, 13, 19, 21
 
+all_acc_lists = []
 for question_id in range(30):
     question = dataset[question_id]
 
@@ -48,8 +48,6 @@ for question_id in range(30):
     ANSWER: A
     ANSWER: B
     ANSWER: C
-    ANSWER: D
-    ANSWER: E
     """
     templated_prompt = tokenizer.apply_chat_template(
         [{"role": "user", "content": full_prompt}],
@@ -74,7 +72,7 @@ for question_id in range(30):
         original_out,
         # interrupt_prompt="\n\n<trimmed_due_to_length>\n\nANSWER:",
         required_acc=0.6,
-        stride=10,
+        stride=30,
         verbose=False,
     )
 
@@ -83,6 +81,23 @@ for question_id in range(30):
     plt.title(f"{subset} Q{question_id}")
     plt.show()
 
+    all_acc_lists.append(acc_list)
+
     # # Create and display the HTML
     # highlighted_text = create_html_highlighted_text(word_list, acc_list)
     # display(HTML(highlighted_text))
+
+# %%
+plt.figure(figsize=(5, 4))
+for acc_list in all_acc_lists:
+    plt.plot(acc_list, label="acc")
+plt.ylim(0, 1)
+# plt.legend()
+# Set both positions and labels for x-ticks
+plt.xticks([0, len(acc_list)//2, len(acc_list)-1], ["start", "middle", "end"])
+plt.title(f"30 questions from {subset}", pad=10)
+plt.tight_layout()
+plt.show()
+
+# save as svg
+plt.savefig(f"report/pictures/30_questions_from_{subset}.svg", format="svg")
