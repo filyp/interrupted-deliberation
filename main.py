@@ -36,7 +36,8 @@ dataset = load_dataset(dataset_name, subset, split="train")
 # ok questions: 12, 13, 19, 21
 
 all_acc_lists = []
-for question_id in range(30):
+all_original_out = []
+for question_id in range(0, 30):
     question = dataset[question_id]
 
     full_prompt = f"""\
@@ -60,6 +61,7 @@ for question_id in range(30):
     # generate original CoT
     # using temperature 0
     original_out = model.generate(**original_batch, max_new_tokens=300, temperature=0.01)
+    all_original_out.append(original_out)
 
     # print(tokenizer.decode(original_out[0]))
     # print("correct answer: ", question["target"])
@@ -87,17 +89,30 @@ for question_id in range(30):
     # highlighted_text = create_html_highlighted_text(word_list, acc_list)
     # display(HTML(highlighted_text))
 
-# %%
-plt.figure(figsize=(5, 4))
-for acc_list in all_acc_lists:
-    plt.plot(acc_list, label="acc")
-plt.ylim(0, 1)
-# plt.legend()
-# Set both positions and labels for x-ticks
-plt.xticks([0, len(acc_list)//2, len(acc_list)-1], ["start", "middle", "end"])
-plt.title(f"30 questions from {subset}", pad=10)
-plt.tight_layout()
-plt.show()
+# # %%
+# plt.figure(figsize=(5, 4))
+# for acc_list in filt:
+#     plt.plot(acc_list, label="acc")
+# plt.ylim(0, 1)
+# # plt.legend()
+# # Set both positions and labels for x-ticks
+# plt.xticks([0, len(acc_list)//2, len(acc_list)-1], ["start", "middle", "end"])
+# plt.title(f"30 questions from {subset}", pad=10)
+# plt.tight_layout()
+# plt.show()
 
-# save as svg
-plt.savefig(f"report/pictures/30_questions_from_{subset}.svg", format="svg")
+# # save as svg
+# plt.savefig(f"report/pictures/30_questions_from_{subset}.svg", format="svg")
+
+# # %%
+# filt = a[a[:, 0] < 0.5]
+# # %%
+# import numpy as np
+
+# a = np.array(all_acc_lists)
+# a
+# # %%
+# a[:, 0] < 0.5
+
+# # %%
+# filt.mean(axis=0)

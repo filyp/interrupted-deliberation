@@ -66,15 +66,18 @@ def create_html_highlighted_text(words, accuracies):
 
 
 def general_interrupt_prompt_generator(instructions):
-    def inner(trimmed, question, tokenizer):
+    def inner(trimmed, question_text, tokenizer):
         cot = trimmed.split("assistant<|end_header_id|>\n\n")[-1]
-        prompt = f"""<question>{question}</question>
-    <partial_cot>{cot}</partial_cot>
-    <instructions>{instructions} Answer exactly one of the following:
-    ANSWER: A
-    ANSWER: B
-    ANSWER: C
-    </instructions>"""
+        assert isinstance(question_text, str)
+        prompt = f"""\
+<question>{question_text}</question>
+<partial_cot>{cot}</partial_cot>
+<instructions>{instructions} Answer exactly one of the following:
+ANSWER: A
+ANSWER: B
+ANSWER: C
+</instructions>"""
+        print(prompt)
         return tokenizer.apply_chat_template(
             [
                 {"role": "user", "content": prompt},
@@ -118,8 +121,9 @@ def get_acc_list_templated(
         pt.cuda.empty_cache()
 
         out_text_trimmed = tokenizer.decode(original_out[0, : orig_input_len + i])
+        question_text = question["input"]
         batch = tokenizer(
-            template_function(out_text_trimmed, question, tokenizer),
+            template_function(out_text_trimmed, question_text, tokenizer),
             return_tensors="pt",
         )
 
