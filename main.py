@@ -100,7 +100,7 @@ for question_id in [2, 7]: #, 9, 10, 13, 15, 21, 26, 28, 29]:
         <h3>Question {question_id}</h3>
         <pre>{question['input']}</pre>
         <p>Correct answer: {question['target']}</p>
-        <img src="../{image_path}" class="plot" alt="Accuracy plot for question {question_id}">
+        <img src="{image_path}" class="plot" alt="Accuracy plot for question {question_id}">
         <div class="token-viz">
             {highlighted_text}
         </div>
@@ -129,9 +129,15 @@ html_header = """
             border: 1px solid #eee;
             border-radius: 5px;
         }
+        .plot {
+            width: 100%;
+            max-width: 600px;
+            margin: 20px 0;
+        }
         pre, code {
-            white-space: pre-wrap;
-            word-break: break-word;
+            white-space: pre-wrap !important;
+            word-break: break-word !important;
+            overflow-wrap: anywhere !important;
         }
     </style>
 </head>
