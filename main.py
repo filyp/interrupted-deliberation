@@ -21,8 +21,8 @@ model = AutoModelForCausalLM.from_pretrained(
     model_id, torch_dtype=pt.bfloat16, device_map=device
 )
 
-# model_small_id = "meta-llama/Llama-3.2-1B-Instruct"
-model_small_id = "google/gemma-3-4b-it"
+model_small_id = "meta-llama/Llama-3.2-1B-Instruct"
+# model_small_id = "google/gemma-3-4b-it"
 model_small = AutoModelForCausalLM.from_pretrained(
     model_small_id, torch_dtype=pt.bfloat16, device_map=device
 )
@@ -31,7 +31,7 @@ tokenizer = AutoTokenizer.from_pretrained(model_id)
 tokenizer.pad_token = tokenizer.eos_token
 _tokenizer_small = AutoTokenizer.from_pretrained(model_small_id)
 _lorem = "Lorem ipsum dolor sit amet, consectetur adipiscing elit."
-# assert _tokenizer_small.encode(_lorem) == tokenizer.encode(_lorem)
+assert _tokenizer_small.encode(_lorem) == tokenizer.encode(_lorem)
 
 dataset_name = "maveriq/bigbenchhard"
 subset = "logical_deduction_three_objects"
@@ -43,11 +43,11 @@ dataset = load_dataset(dataset_name, subset, split="train")
 # Initialize body content list
 html_body_parts = []
 
-# for question_id in [2, 7, 9, 10, 13, 15, 21, 26, 28, 29]:
 all_acc_lists = []
 all_acc_list_abrupt = []
 all_acc_list_small = []
-for question_id in range(10):
+for question_id in [2, 7, 9, 10, 13, 15, 21, 26, 28, 29]:
+# for question_id in range(10):
     question = dataset[question_id]
 
     full_prompt = f"""\
@@ -121,7 +121,7 @@ for question_id in range(10):
     plt.xlabel("CoT token position")
     plt.ylabel("Accuracy")
     image_path = (
-        f"images_smooth_vs_abrupt/with_gemma_{subset}_Q{question_id}.svg"
+        f"images_smooth_vs_abrupt/xxx_{subset}_Q{question_id}.svg"
     )
     plt.savefig("docs/" + image_path, format="svg")
     plt.show()
@@ -135,7 +135,7 @@ for question_id in range(10):
     plt.xlabel("CoT token position")
     plt.ylabel("Accuracy")
     image_path = (
-        f"images_smooth_vs_abrupt/with_gemma_{subset}_Q{question_id}.svg"
+        f"images_smooth_vs_abrupt/xxx_{subset}_Q{question_id}.svg"
     )
     plt.savefig("docs/" + image_path, format="svg")
     plt.show()
@@ -149,7 +149,7 @@ for question_id in range(10):
     plt.title(f"{subset} Q{question_id}", pad=10)
     plt.xlabel("CoT token position")
     plt.ylabel("Accuracy")
-    image_path = f"images/with_gemma_{subset}_Q{question_id}.svg"
+    image_path = f"images/xxx_{subset}_Q{question_id}.svg"
     plt.savefig("docs/" + image_path, format="svg")
     plt.show()
     plt.close()
@@ -209,18 +209,18 @@ html_header = """
     </style>
 </head>
 <body>
-    <h1>Logical Deduction Three Objects Dataset with GEMMA-3-4B-IT</h1>
+    <h1>Logical Deduction Three Objects Dataset</h1>
 """
 # Combine header and body
 html_content = html_header + "\n".join(html_body_parts) + "\n</body>\n</html>"
 
 # Save HTML file
-with open(f"docs/analysis_with_gemma_{subset}.html", "w") as f:
+with open(f"docs/analysis_xxx_{subset}.html", "w") as f:
     f.write(html_content)
 
 # %%
 # save the all acc lists
-dir_name = f"reports/analysis_with_gemma_{subset}"
+dir_name = f"reports/analysis_xxx_{subset}"
 # mkdir if not exists
 os.makedirs(dir_name, exist_ok=True)
 with open(f"{dir_name}/all_acc_lists.pkl", "wb") as f:
