@@ -85,8 +85,8 @@ for question_id in [2, 7]: #, 9, 10, 13, 15, 21, 26, 28, 29]:
     plt.plot(acc_list, label="acc")
     plt.ylim(0, 1)
     plt.title(f"{subset} Q{question_id}")
-    image_path = f"report/sweep_images/30_questions_from_{subset}_Q{question_id}.svg"
-    plt.savefig(image_path, format="svg")
+    image_path = f"images/30_questions_from_{subset}_Q{question_id}.svg"
+    plt.savefig("docs/" + image_path, format="svg")
     plt.show()
     # plt.close()  # Close the plot to free memory
 
@@ -128,6 +128,10 @@ html_header = """
             padding: 20px;
             border: 1px solid #eee;
             border-radius: 5px;
+        }
+        pre, code {
+            white-space: pre-wrap;
+            word-break: break-word;
         }
     </style>
 </head>
