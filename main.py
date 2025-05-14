@@ -34,11 +34,11 @@ subset = "logical_deduction_three_objects"
 dataset = load_dataset(dataset_name, subset, split="train")
 
 # %%
-# ok questions: 12, 13, 19, 21
 
-all_acc_lists = []
-all_original_out = []
-for question_id in range(0, 30):
+# Initialize markdown content
+md_content = ["# Analysis Results\n", f"## {subset.replace('_', ' ').title()}\n"]
+
+for question_id in [2, 7]: #, 9, 10, 13, 15, 21, 26, 28, 29]:
     question = dataset[question_id]
 
     full_prompt = f"""\
@@ -64,7 +64,6 @@ for question_id in range(0, 30):
     original_out = model.generate(
         **original_batch, max_new_tokens=300, temperature=0.01
     )
-    all_original_out.append(original_out)
 
     # print(tokenizer.decode(original_out[0]))
     # print("correct answer: ", question["target"])
@@ -76,45 +75,33 @@ for question_id in range(0, 30):
         original_batch,
         original_out,
         # interrupt_prompt="\n\n<trimmed_due_to_length>\n\nANSWER:",
-        required_acc=0.6,
-        stride=30,
+        # required_acc=0.6,
+        stride=1,
         verbose=False,
     )
 
+    # Save the plot
     plt.plot(acc_list, label="acc")
     plt.ylim(0, 1)
     plt.title(f"{subset} Q{question_id}")
-    plt.show()
+    image_path = f"report/sweep_images/30_questions_from_{subset}_Q{question_id}.svg"
+    plt.savefig(image_path, format="svg")
+    plt.close()  # Close the plot to free memory
 
-    all_acc_lists.append(acc_list)
+    # Create and display the HTML
+    highlighted_text = create_html_highlighted_text(word_list, acc_list)
+    display(HTML(highlighted_text))
 
-    # # Create and display the HTML
-    # highlighted_text = create_html_highlighted_text(word_list, acc_list)
-    # display(HTML(highlighted_text))
+    # Add content to our collection
+    md_content.extend([
+        f"\n### Question {question_id}\n",
+        f"![Question {question_id} Analysis]({image_path})\n",
+        f"\n{highlighted_text}\n",
+        "---\n"
+    ])
 
-# %%
-plt.figure(figsize=(5, 4))
-for acc_list in all_acc_lists:
-    plt.plot(acc_list, label="acc")
-plt.ylim(0, 1)
-# plt.legend()
-# Set both positions and labels for x-ticks
-plt.xticks([0, len(acc_list) // 2, len(acc_list) - 1], ["start", "middle", "end"])
-plt.title(f"30 questions from {subset}", pad=10)
-plt.tight_layout()
-# save as svg
-plt.savefig(f"report/pictures/30_questions_from_{subset}.svg", format="svg")
-plt.show()
+# Save all content at the end
+os.makedirs("report", exist_ok=True)
+with open("report/results.md", "w") as md_file:
+    md_file.write("\n".join(md_content))
 
-# # %%
-# filt = a[a[:, 0] < 0.5]
-
-# # %%
-# a[:, 0] < 0.5
-
-# %%
-np.array(all_acc_lists).mean(axis=0)
-# %%
-
-mask = (a[:, 0] < 0.4) & (a[:, -1] > 0.9)
-np.where(mask)

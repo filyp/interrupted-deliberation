@@ -6,4 +6,4 @@ average accuracies, on start, middle, end:
 indices of questions where
 start accuracy < 0.4 and end accuracy > 0.9
 (there are 10 such questions out of these 30)
-[ 2,  7,  9, 10, 13, 15, 21, 26, 28, 29]
+[ 2, 7, 9, 10, 13, 15, 21, 26, 28, 29]

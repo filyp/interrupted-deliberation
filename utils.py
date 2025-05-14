@@ -77,7 +77,6 @@ ANSWER: A
 ANSWER: B
 ANSWER: C
 </instructions>"""
-        print(prompt)
         return tokenizer.apply_chat_template(
             [
                 {"role": "user", "content": prompt},
@@ -116,8 +115,7 @@ def get_acc_list_templated(
     word_list = []
     other_prob1_list = []
     other_prob2_list = []
-    # for i in range(0, cot_length, stride):
-    for i in [0, cot_length // 2, cot_length - 1]:
+    for i in range(0, cot_length, stride):
         pt.cuda.empty_cache()
 
         out_text_trimmed = tokenizer.decode(original_out[0, : orig_input_len + i])
