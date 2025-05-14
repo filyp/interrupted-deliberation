@@ -5,9 +5,10 @@
 
 ### Question 2
 
-![Question 2 Analysis](report/sweep_images/30_questions_from_logical_deduction_three_objects_Q2.svg)
+![Question 2 Analysis](sweep_images/30_questions_from_logical_deduction_three_objects_Q2.svg)
 
 
+<div style='font-family: monospace;'>
 <span style="background-color: rgba(0, 190, 0, 0.18612131476402283)">
 
 </span><span style="background-color: rgba(0, 190, 0, 0.18612131476402283)">To</span><span style="background-color: rgba(0, 190, 0, 0.22236639261245728)"> solve</span><span style="background-color: rgba(0, 190, 0, 0.22236639261245728)"> this</span><span style="background-color: rgba(0, 190, 0, 0.2738029658794403)">,</span><span style="background-color: rgba(0, 190, 0, 0.23356997966766357)"> let</span><span style="background-color: rgba(0, 190, 0, 0.19684197008609772)">'s</span><span style="background-color: rgba(0, 190, 0, 0.1968419849872589)"> analyze</span><span style="background-color: rgba(0, 190, 0, 0.1968419849872589)"> the</span><span style="background-color: rgba(0, 190, 0, 0.20150265097618103)"> information</span><span style="background-color: rgba(0, 190, 0, 0.18213799595832825)"> given</span><span style="background-color: rgba(0, 190, 0, 0.231223925948143)">:
@@ -28,15 +29,17 @@
 </span><span style="background-color: rgba(0, 190, 0, 0.9984638094902039)">Therefore</span><span style="background-color: rgba(0, 190, 0, 0.9988031983375549)">,</span><span style="background-color: rgba(0, 190, 0, 0.9988031983375549)"> the</span><span style="background-color: rgba(0, 190, 0, 0.9988604187965393)"> correct</span><span style="background-color: rgba(0, 190, 0, 0.9991122484207153)"> answer</span><span style="background-color: rgba(0, 190, 0, 0.9990386962890625)"> is</span><span style="background-color: rgba(0, 190, 0, 0.9992818832397461)">:
 
 </span><span style="background-color: rgba(0, 190, 0, 0.9987383484840393)">ANS</span><span style="background-color: rgba(0, 190, 0, 0.9992511868476868)">WER</span><span style="background-color: rgba(0, 190, 0, 0.9991862773895264)">:</span><span style="background-color: rgba(0, 190, 0, 0.9996987581253052)"> C</span>
+</div>
 
 ---
 
 
 ### Question 7
 
-![Question 7 Analysis](report/sweep_images/30_questions_from_logical_deduction_three_objects_Q7.svg)
+![Question 7 Analysis](sweep_images/30_questions_from_logical_deduction_three_objects_Q7.svg)
 
 
+<div style='font-family: monospace;'>
 <span style="background-color: rgba(0, 190, 0, 0.2381150871515274)">
 
 </span><span style="background-color: rgba(0, 190, 0, 0.19311705231666565)">To</span><span style="background-color: rgba(0, 190, 0, 0.21440286934375763)"> solve</span><span style="background-color: rgba(0, 190, 0, 0.23507338762283325)"> this</span><span style="background-color: rgba(0, 190, 0, 0.23620715737342834)"> problem</span><span style="background-color: rgba(0, 190, 0, 0.17529039084911346)">,</span><span style="background-color: rgba(0, 190, 0, 0.25693362951278687)"> let</span><span style="background-color: rgba(0, 190, 0, 0.2153456062078476)">'s</span><span style="background-color: rgba(0, 190, 0, 0.2381150871515274)"> analyze</span><span style="background-color: rgba(0, 190, 0, 0.2615281045436859)"> the</span><span style="background-color: rgba(0, 190, 0, 0.2853657901287079)"> information</span><span style="background-color: rgba(0, 190, 0, 0.3115250766277313)"> given</span><span style="background-color: rgba(0, 190, 0, 0.3125893771648407)"> in</span><span style="background-color: rgba(0, 190, 0, 0.2863779067993164)"> each</span><span style="background-color: rgba(0, 190, 0, 0.2381150871515274)"> paragraph</span><span style="background-color: rgba(0, 190, 0, 0.19644774496555328)">.
@@ -66,5 +69,6 @@
 </span><span style="background-color: rgba(0, 190, 0, 0.8039331436157227)">So</span><span style="background-color: rgba(0, 190, 0, 0.8403803706169128)">,</span><span style="background-color: rgba(0, 190, 0, 0.7866859436035156)"> the</span><span style="background-color: rgba(0, 190, 0, 0.822891354560852)"> only</span><span style="background-color: rgba(0, 190, 0, 0.7571610808372498)"> option</span><span style="background-color: rgba(0, 190, 0, 0.8193836808204651)"> that</span><span style="background-color: rgba(0, 190, 0, 0.7769659161567688)"> is</span><span style="background-color: rgba(0, 190, 0, 0.7769659161567688)"> consistent</span><span style="background-color: rgba(0, 190, 0, 0.8649848103523254)"> with</span><span style="background-color: rgba(0, 190, 0, 0.8684333562850952)"> the</span><span style="background-color: rgba(0, 190, 0, 0.7815621495246887)"> information</span><span style="background-color: rgba(0, 190, 0, 0.7109070420265198)"> given</span><span style="background-color: rgba(0, 190, 0, 0.802151083946228)"> is</span><span style="background-color: rgba(0, 190, 0, 0.7794008255004883)">:
 
 </span><span style="background-color: rgba(0, 190, 0, 0.9947178363800049)">(A</span><span style="background-color: rgba(0, 190, 0, 0.9972705841064453)">)</span><span style="background-color: rgba(0, 190, 0, 0.9957062602043152)"> Eve</span><span style="background-color: rgba(0, 190, 0, 0.996978759765625)"> finished</span><span style="background-color: rgba(0, 190, 0, 0.9983806014060974)"> first</span>
+</div>
 
 ---
