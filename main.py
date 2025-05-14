@@ -35,8 +35,9 @@ dataset = load_dataset(dataset_name, subset, split="train")
 
 # %%
 
-# Initialize markdown content
-md_content = ["# Analysis Results\n", f"## {subset.replace('_', ' ').title()}\n"]
+
+# Initialize body content list
+html_body_parts = []
 
 for question_id in [2, 7]: #, 9, 10, 13, 15, 21, 26, 28, 29]:
     question = dataset[question_id]
@@ -86,22 +87,57 @@ for question_id in [2, 7]: #, 9, 10, 13, 15, 21, 26, 28, 29]:
     plt.title(f"{subset} Q{question_id}")
     image_path = f"report/sweep_images/30_questions_from_{subset}_Q{question_id}.svg"
     plt.savefig(image_path, format="svg")
-    plt.close()  # Close the plot to free memory
+    plt.show()
+    # plt.close()  # Close the plot to free memory
 
-    # Create and display the HTML
+
+    # Create HTML content with styling
     highlighted_text = create_html_highlighted_text(word_list, acc_list)
-    display(HTML(highlighted_text))
+    
+    # Add question content to body parts
+    html_body_parts.append(f"""
+    <div class="question">
+        <h3>Question {question_id}</h3>
+        <pre>{question['input']}</pre>
+        <p>Correct answer: {question['target']}</p>
+        <img src="../{image_path}" class="plot" alt="Accuracy plot for question {question_id}">
+        <div class="token-viz">
+            {highlighted_text}
+        </div>
+    </div>
+    """)
 
-    # Add content to our collection
-    md_content.extend([
-        f"\n### Question {question_id}\n",
-        f"![Question {question_id} Analysis]({image_path})\n",
-        f"\n{highlighted_text}\n",
-        "---\n"
-    ])
+# Initialize HTML content with header
+html_header = """
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body { 
+            font-family: monospace;
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 20px;
+        }
+        span { 
+            display: inline-block;
+            padding: 2px;
+        }
+        .question {
+            margin-bottom: 40px;
+            padding: 20px;
+            border: 1px solid #eee;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Analysis Results</h1>
+    <h2>Logical Deduction Three Objects</h2>
+"""
+# Combine header and body
+html_content = html_header + "\n".join(html_body_parts) + "\n</body>\n</html>"
 
-# Save all content at the end
-os.makedirs("report", exist_ok=True)
-with open("report/results.md", "w") as md_file:
-    md_file.write("\n".join(md_content))
-
+# Save HTML file
+with open("docs/analysis.html", "w") as f:
+    f.write(html_content)
