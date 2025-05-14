@@ -33,6 +33,11 @@ def get_accuracy(out, question, tokenizer, required_acc=0.8):
     return answer_probs[target_idx].item()
 
 
+def get_is_correct(out, question, tokenizer):
+    answer_probs = get_probabilities(out, tokenizer)
+    return f"({answer_tokens[pt.argmax(answer_probs).item()][-1]})" == question["target"]
+
+
 def get_entropy(out, question, tokenizer, _):
     answer_probs = get_probabilities(out, tokenizer)
     entropy = -pt.sum(answer_probs * pt.log(answer_probs))
