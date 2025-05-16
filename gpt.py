@@ -299,7 +299,10 @@ with open(f"report/gpt_{subset}_accs_perquestion_perlabel.pkl", "wb") as f:
 label_to_accs = defaultdict(list)
 for q in accs_perquestion_perlabel:
     for label, acc in q.items():
-        mean = np.mean(acc)
+        acc = np.array(acc)
+        # mean = np.mean(acc)
+        # mean = (acc > 1 / 7).mean()
+        mean = ((acc[:-1] - acc[1:]) ** 2).mean()
         label_to_accs[label].append(mean)
 
 # %%
@@ -307,5 +310,3 @@ label_to_accs_aggr = {
     label: float(np.mean(accs)) for label, accs in label_to_accs.items()
 }
 label_to_accs_aggr
-
-# %%

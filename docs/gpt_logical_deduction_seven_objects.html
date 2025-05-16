@@ -71,28 +71,38 @@ If you're not confident yet, spread out the probability over many answers.
 There is a risk of being overconfident here.</pre>
 
 
-
 <h2>Average Accuracy Across All Questions and Token Positions</h2>
+<p>Noisiness score measures how much the model's predictions fluctuate during reasoning, calculated as taking the changes in probabilities between consecutive tokens and calculating the sum of their squares.</p>
 <table style="border-collapse: collapse; width: 100%; margin: 20px 0;">
     <tr style="background-color: #f5f5f5;">
-        <th style="padding: 10px; border: 1px solid #ddd; text-align: left;">Model</th>
-        <th style="padding: 10px; border: 1px solid #ddd; text-align: right;">Accuracy</th>
+        <th style="padding: 10px; border: 1px solid #ddd; text-align: left;">Method & Model</th>
+        <th style="padding: 10px; border: 1px solid #ddd; text-align: right;">Accuracy↑</th>
+        <th style="padding: 10px; border: 1px solid #ddd; text-align: right;">% Time Above Random↑</th>
+        <th style="padding: 10px; border: 1px solid #ddd; text-align: right;">Noisiness↓</th>
     </tr>
     <tr>
         <td style="padding: 10px; border: 1px solid #ddd;">sampled gpt-4.1-2025-04-14</td>
         <td style="padding: 10px; border: 1px solid #ddd; text-align: right;">24.3%</td>
+        <td style="padding: 10px; border: 1px solid #ddd; text-align: right;">25.8%</td>
+        <td style="padding: 10px; border: 1px solid #ddd; text-align: right;">0.083</td>
     </tr>
     <tr>
         <td style="padding: 10px; border: 1px solid #ddd;">estimated gpt-4.1-2025-04-14</td>
         <td style="padding: 10px; border: 1px solid #ddd; text-align: right;">20.4%</td>
+        <td style="padding: 10px; border: 1px solid #ddd; text-align: right;">24.6%</td>
+        <td style="padding: 10px; border: 1px solid #ddd; text-align: right;">0.054</td>
     </tr>
     <tr>
         <td style="padding: 10px; border: 1px solid #ddd;">sampled gpt-4.1-mini-2025-04-14</td>
         <td style="padding: 10px; border: 1px solid #ddd; text-align: right;">21.8%</td>
+        <td style="padding: 10px; border: 1px solid #ddd; text-align: right;">29.3%</td>
+        <td style="padding: 10px; border: 1px solid #ddd; text-align: right;">0.110</td>
     </tr>
     <tr>
         <td style="padding: 10px; border: 1px solid #ddd;">estimated gpt-4.1-mini-2025-04-14</td>
         <td style="padding: 10px; border: 1px solid #ddd; text-align: right;">17.9%</td>
+        <td style="padding: 10px; border: 1px solid #ddd; text-align: right;">25.6%</td>
+        <td style="padding: 10px; border: 1px solid #ddd; text-align: right;">0.072</td>
     </tr>
 </table>
     </p>

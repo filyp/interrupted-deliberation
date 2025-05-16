@@ -12,6 +12,8 @@ import pickle
 
 from utils import *
 
+plt.style.use("default")
+
 device = "cuda"  # change it if you want
 # device = "cpu"  # change it if you want
 pt.set_default_device(device)
@@ -31,12 +33,15 @@ tokenizer = AutoTokenizer.from_pretrained(model_id)
 tokenizer.pad_token = tokenizer.eos_token
 _tokenizer_small = AutoTokenizer.from_pretrained(model_small_id)
 _lorem = "Lorem ipsum dolor sit amet, consectetur adipiscing elit."
-assert _tokenizer_small.encode(_lorem) == tokenizer.encode(_lorem)
+if "gemma" not in model_small_id:
+    assert _tokenizer_small.encode(_lorem) == tokenizer.encode(_lorem)
 
 dataset_name = "maveriq/bigbenchhard"
 subset = "logical_deduction_three_objects"
 # subset = "tracking_shuffled_objects_three_objects"
 dataset = load_dataset(dataset_name, subset, split="train")
+
+prefix = "xxx"
 
 # %%
 
@@ -82,7 +87,7 @@ for question_id in [2, 7, 9, 10, 13, 15, 21, 26, 28, 29]:
         question,
         original_batch,
         original_out,
-        required_acc=0.01,
+        required_acc=0.1,
         # stride=1,
         verbose=False,
     )
@@ -92,18 +97,24 @@ for question_id in [2, 7, 9, 10, 13, 15, 21, 26, 28, 29]:
         question,
         original_batch,
         original_out,
-        required_acc=0.01,
+        required_acc=0.1,
         interrupt_prompt="\n\n<trimmed_due_to_length>\n\nANSWER:",
         # stride=1,
         verbose=False,
     )
+
+    if "gemma" in model_small_id:
+        original_batch = _tokenizer_small(question["input"], return_tensors="pt")
+        _org_txt = tokenizer.decode(original_out[0])
+        original_out = _tokenizer_small.encode(_org_txt, return_tensors="pt")
+
     acc_list_small, _ = get_acc_list_templated(
         model_small,
         _tokenizer_small,
         question,
         original_batch,
         original_out,
-        required_acc=0.01,
+        required_acc=0.1,
         # stride=1,
         verbose=False,
     )
@@ -121,7 +132,7 @@ for question_id in [2, 7, 9, 10, 13, 15, 21, 26, 28, 29]:
     plt.xlabel("CoT token position")
     plt.ylabel("Accuracy")
     image_path = (
-        f"images_smooth_vs_abrupt/xxx_{subset}_Q{question_id}.svg"
+        f"images_smooth_vs_abrupt/{prefix}_{subset}_Q{question_id}.svg"
     )
     plt.savefig("docs/" + image_path, format="svg")
     plt.show()
@@ -135,7 +146,7 @@ for question_id in [2, 7, 9, 10, 13, 15, 21, 26, 28, 29]:
     plt.xlabel("CoT token position")
     plt.ylabel("Accuracy")
     image_path = (
-        f"images_smooth_vs_abrupt/xxx_{subset}_Q{question_id}.svg"
+        f"images_smooth_vs_abrupt/{prefix}_{subset}_Q{question_id}.svg"
     )
     plt.savefig("docs/" + image_path, format="svg")
     plt.show()
@@ -149,7 +160,7 @@ for question_id in [2, 7, 9, 10, 13, 15, 21, 26, 28, 29]:
     plt.title(f"{subset} Q{question_id}", pad=10)
     plt.xlabel("CoT token position")
     plt.ylabel("Accuracy")
-    image_path = f"images/xxx_{subset}_Q{question_id}.svg"
+    image_path = f"images/{prefix}_{subset}_Q{question_id}.svg"
     plt.savefig("docs/" + image_path, format="svg")
     plt.show()
     plt.close()
@@ -215,12 +226,12 @@ html_header = """
 html_content = html_header + "\n".join(html_body_parts) + "\n</body>\n</html>"
 
 # Save HTML file
-with open(f"docs/analysis_xxx_{subset}.html", "w") as f:
+with open(f"docs/analysis_{prefix}_{subset}.html", "w") as f:
     f.write(html_content)
 
 # %%
 # save the all acc lists
-dir_name = f"reports/analysis_xxx_{subset}"
+dir_name = f"reports/analysis_{prefix}_{subset}"
 # mkdir if not exists
 os.makedirs(dir_name, exist_ok=True)
 with open(f"{dir_name}/all_acc_lists.pkl", "wb") as f:
