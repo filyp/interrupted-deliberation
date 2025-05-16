@@ -50,6 +50,53 @@
 </head>
 <body>
     <h1>Logical Deduction Three Objects Dataset</h1>
+    
+    <p>
+We filtered out all questions where it's possible to guess the answer without CoT, with accuracy > 50%. Questions are from 
+<a href="https://huggingface.co/datasets/maveriq/bigbenchhard/viewer/logical_deduction_seven_objects">bigbenchhard logical_deduction_seven_objects</a>.
+
+
+
+
+    <h2>Prompts Used for Evaluation</h2>
+
+    <h3>Sampling Prompt (100 samples, temperature=1)</h3>
+    <pre>Enough reasoning. Based on reasoning so far, try to guess the final answer. 
+Output ONLY one letter (A/B/C/...). Any other text will cause parsing errors.</pre>
+
+    <h3>Estimating Prompt (1 sample, temperature=0)</h3>
+    <pre>Enough reasoning. Based on the reasoning so far, try to guess the final answer.
+For each letter output a score from 0% to 100% with your estimated probability of that answer.
+If you're not confident yet, spread out the probability over many answers.
+There is a risk of being overconfident here.</pre>
+
+
+
+<h2>Average Accuracy Across All Questions and Token Positions</h2>
+<table style="border-collapse: collapse; width: 100%; margin: 20px 0;">
+    <tr style="background-color: #f5f5f5;">
+        <th style="padding: 10px; border: 1px solid #ddd; text-align: left;">Model</th>
+        <th style="padding: 10px; border: 1px solid #ddd; text-align: right;">Accuracy</th>
+    </tr>
+    <tr>
+        <td style="padding: 10px; border: 1px solid #ddd;">sampled gpt-4.1-2025-04-14</td>
+        <td style="padding: 10px; border: 1px solid #ddd; text-align: right;">24.3%</td>
+    </tr>
+    <tr>
+        <td style="padding: 10px; border: 1px solid #ddd;">estimated gpt-4.1-2025-04-14</td>
+        <td style="padding: 10px; border: 1px solid #ddd; text-align: right;">20.4%</td>
+    </tr>
+    <tr>
+        <td style="padding: 10px; border: 1px solid #ddd;">sampled gpt-4.1-mini-2025-04-14</td>
+        <td style="padding: 10px; border: 1px solid #ddd; text-align: right;">21.8%</td>
+    </tr>
+    <tr>
+        <td style="padding: 10px; border: 1px solid #ddd;">estimated gpt-4.1-mini-2025-04-14</td>
+        <td style="padding: 10px; border: 1px solid #ddd; text-align: right;">17.9%</td>
+    </tr>
+</table>
+    </p>
+
     <div class="question">
         <h3>Question 2</h3>
         <pre>The following paragraphs each describe a set of seven objects arranged in a fixed order. The statements are logically consistent within each paragraph. On a branch, there are seven birds: a hummingbird, a cardinal, a blue jay, an owl, a raven, a quail, and a robin. The hummingbird is to the left of the quail. The robin is to the left of the cardinal. The blue jay is the leftmost. The cardinal is the fourth from the left. The raven is the third from the right. The owl is the third from the left.
