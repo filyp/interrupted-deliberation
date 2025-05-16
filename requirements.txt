@@ -13,3 +13,4 @@ PyYAML
 hydra-core
 accelerate
 # llama-cpp-python
+openai
