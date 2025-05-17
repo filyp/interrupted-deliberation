@@ -111,7 +111,8 @@ def get_accs_estimated(words, question, model):
     interrup_prompt = """\
 Enough reasoning. Based on the reasoning so far, try to guess the final answer. For each letter output a score from 0% to 100% with your estimated probability of that answer. If you're not confident yet, spread out the probability over many answers. There is a risk of being overconfident here."""
 
-    for i in range(0, len(words), chunk_size):
+    # also use the incomplete remainder chunk, hence "+ chunk_size"
+    for i in range(0, len(words) + chunk_size, chunk_size):
         trimmed_reasoning = " ".join(words[:i])
 
         completion = client.beta.chat.completions.parse(
@@ -323,6 +324,9 @@ with open(f"report/gpt_{subset}_is_top_anss_perquestion_perlabel.pkl", "wb") as 
 label_to_accs = defaultdict(list)
 for q in accs_perquestion_perlabel:
     for label, acc in q.items():
+        # if "sampled" in label:
+        #     acc = acc[:-1]
+        # print(label, len(acc))
         acc = np.array(acc)
 
         # mean = np.mean(acc)
@@ -339,6 +343,9 @@ label_to_accs_aggr
 label_to_is_top_anss = defaultdict(list)
 for q in is_top_anss_perquestion_perlabel:
     for label, is_top_anss in q.items():
+        # if "sampled" in label:
+        #     is_top_anss = is_top_anss[:-1]
+        # print(label, len(is_top_anss))
         is_top_anss = np.array(is_top_anss)
         mean = is_top_anss.mean()
         label_to_is_top_anss[label].append(mean)
@@ -348,3 +355,21 @@ label_to_is_top_anss_aggr = {
 label_to_is_top_anss_aggr
 
 # %%
+
+# %%
+# for each label, concatenate accs
+label_concat_accs = defaultdict(list)
+for q in accs_perquestion_perlabel:
+    for label, acc in q.items():
+        # if "sampled" in label:
+        #     acc = acc[:-1]
+        # print(label, len(acc))
+        label_concat_accs[label].extend(acc)
+label_concat_accs
+
+# %%
+# calculate correlation
+import pandas as pd
+df = pd.DataFrame(label_concat_accs)
+df.corr()
+
